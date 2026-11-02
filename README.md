@@ -14,5 +14,5 @@ A web application for smart waste management using Java Spring Boot, Spring Secu
 - User Registration and Login
 - JWT-based Authentication
 - Waste Complaint Management
-- Admin and Citizen Roles
+- Admin , Worker and Citizen Roles
 - Complaint Status Tracking
