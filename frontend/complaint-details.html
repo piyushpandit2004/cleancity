@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CleanCity - Complaint Details</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #166534;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: white;
+            color: #166534;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 12px #0000000d;
+            margin-bottom: 22px;
+        }
+
+        h1 {
+            font-size: 38px;
+            margin-top: 5px;
+            margin-bottom: 30px;
+            color: #172b4d;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .detail {
+            padding: 16px 0;
+            border-bottom: 1px solid #e2e8f0;
+            overflow-wrap: anywhere;
+        }
+
+        .label {
+            display: block;
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #172b4d;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 9px 16px;
+            border-radius: 25px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 15px;
+            font-weight: normal;
+        }
+
+        .photo {
+            display: block;
+            max-width: 100%;
+            max-height: 550px;
+            margin-top: 20px;
+            border-radius: 10px;
+            object-fit: contain;
+            background: #f8fafc;
+        }
+
+        img[hidden] {
+            display: none !important;
+        }
+
+        .message {
+            color: #475569;
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            h1 {
+                font-size: 29px;
+            }
+
+            .value {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌱 CleanCity</h2>
+
+    <button class="back-btn" onclick="goBack()">
+        ← Complaint Status
+    </button>
+</header>
+
+<main class="container">
+
+    <!-- Complaint Details -->
+    <section class="card">
+
+        <h1>Complaint Details</h1>
+
+        <p id="detailsMessage" class="message">
+            Loading complaint details...
+        </p>
+
+        <div id="details"></div>
+
+    </section>
+
+    <!-- Citizen Original Photo -->
+    <section class="card">
+
+        <h2>Citizen's Original Complaint Photo</h2>
+
+        <p id="originalPhotoMessage" class="message">
+            Checking for original photo...
+        </p>
+
+        <img
+                id="originalPhoto"
+                class="photo"
+                alt="Citizen uploaded complaint photo"
+                hidden
+        >
+
+    </section>
+
+    <!-- Worker Completion Photo -->
+    <section class="card">
+
+        <h2>Worker Completion Photo</h2>
+
+        <p id="completionPhotoMessage" class="message">
+            Checking for completion photo...
+        </p>
+
+        <img
+                id="completionPhoto"
+                class="photo"
+                alt="Worker completion photo"
+                hidden
+        >
+
+    </section>
+
+</main>
+
+<script>
+    // Backend URL
+    const API_BASE = "http://localhost:8080";
+
+    // JWT token
+    const token =
+        localStorage.getItem("token") ||
+        localStorage.getItem("jwtToken") ||
+        localStorage.getItem("accessToken");
+
+    // Complaint ID URL se lena
+    const params = new URLSearchParams(
+        window.location.search
+    );
+
+    const complaintId =
+        params.get("id") ||
+        params.get("complaintId") ||
+        params.get("complaint_id") ||
+        params.get("complaintID");
+
+
+    // Back button
+    function goBack() {
+        window.location.href = "status.html";
+    }
+
+
+    // HTML injection se bachne ke liye
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+
+    // Empty value handle karna
+    function displayValue(value) {
+
+        return value === null ||
+        value === undefined ||
+        value === ""
+            ? "Not available"
+            : escapeHTML(value);
+    }
+
+
+    // Message display karna
+    function setMessage(element, message, isError = false) {
+
+        element.textContent = message;
+
+        element.classList.toggle(
+            "error",
+            isError
+        );
+    }
+
+
+    // Complaint details load karna
+    async function loadDetails() {
+
+        const detailsMessage =
+            document.getElementById("detailsMessage");
+
+        const details =
+            document.getElementById("details");
+
+        const originalPhotoMessage =
+            document.getElementById("originalPhotoMessage");
+
+        const completionPhotoMessage =
+            document.getElementById("completionPhotoMessage");
+
+
+        // Token check
+        if (!token) {
+
+            setMessage(
+                detailsMessage,
+                "Login token nahi mila. Please login again.",
+                true
+            );
+
+            setMessage(
+                originalPhotoMessage,
+                "Please log in to view this photo.",
+                true
+            );
+
+            setMessage(
+                completionPhotoMessage,
+                "Please log in to view this photo.",
+                true
+            );
+
+            return;
+        }
+
+
+        // Complaint ID check
+        if (!complaintId) {
+
+            setMessage(
+                detailsMessage,
+                "Complaint ID missing. Please open this page from your complaint list.",
+                true
+            );
+
+            setMessage(
+                originalPhotoMessage,
+                "No complaint selected.",
+                true
+            );
+
+            setMessage(
+                completionPhotoMessage,
+                "No complaint selected.",
+                true
+            );
+
+            return;
+        }
+
+
+        try {
+
+            // Citizen ki complaints fetch karna
+            const response = await fetch(
+                API_BASE + "/api/citizen/complaints",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+
+            if (response.status === 401) {
+
+                throw new Error(
+                    "Session expired (401). Please log in again."
+                );
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Could not fetch complaints. HTTP " +
+                    response.status
+                );
+            }
+
+
+            const complaints = await response.json();
+
+
+            if (!Array.isArray(complaints)) {
+
+                throw new Error(
+                    "Unexpected response from backend. Expected a list of complaints."
+                );
+            }
+
+
+            // Selected complaint find karna
+            const complaint = complaints.find(
+                item =>
+                    String(item.id) === String(complaintId)
+            );
+
+
+            if (!complaint) {
+
+                setMessage(
+                    detailsMessage,
+                    "Complaint not found in your complaints.",
+                    true
+                );
+
+                setMessage(
+                    originalPhotoMessage,
+                    "The complaint could not be found.",
+                    true
+                );
+
+                setMessage(
+                    completionPhotoMessage,
+                    "The complaint could not be found.",
+                    true
+                );
+
+                return;
+            }
+
+
+            // Complaint details display karna
+            setMessage(detailsMessage, "");
+
+
+            details.innerHTML = `
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Complaint ID
+                        </span>
+
+                        <span class="value">
+                            ${displayValue(complaint.id)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Title
+                        </span>
+
+                        <span class="value">
+                            ${displayValue(complaint.title)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Description
+                        </span>
+
+                        <span class="value">
+                            ${displayValue(complaint.description)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Location
+                        </span>
+
+                        <span class="value">
+                            ${displayValue(complaint.location)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Status
+                        </span>
+
+                        <span class="status">
+                            ${displayValue(complaint.status)}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span class="label">
+                            Created At
+                        </span>
+
+                        <span class="value">
+                            ${displayValue(complaint.createdAt)}
+                        </span>
+
+                    </div>
+
+
+                    ${
+                complaint.rejectionReason
+                    ? `
+                                <div class="detail">
+
+                                    <span class="label">
+                                        Rejection Reason
+                                    </span>
+
+                                    <span class="value">
+                                        ${displayValue(
+                        complaint.rejectionReason
+                    )}
+                                    </span>
+
+                                </div>
+                            `
+                    : ""
+            }
+
+                `;
+
+
+            // Dono photos load karna
+            await Promise.all([
+
+                loadPhoto(
+                    "/api/citizen/complaints/" +
+                    encodeURIComponent(complaintId) +
+                    "/photo",
+
+                    "originalPhoto",
+
+                    originalPhotoMessage,
+
+                    "Original complaint photo"
+                ),
+
+
+                loadPhoto(
+                    "/api/citizen/complaints/" +
+                    encodeURIComponent(complaintId) +
+                    "/completion-photo",
+
+                    "completionPhoto",
+
+                    completionPhotoMessage,
+
+                    "Worker completion photo"
+                )
+
+            ]);
+
+
+        } catch (error) {
+
+            console.error(
+                "Complaint details error:",
+                error
+            );
+
+            setMessage(
+                detailsMessage,
+                error.message ||
+                "Could not load complaint details. Check backend, token and CORS settings.",
+                true
+            );
+
+            if (
+                (error.message || "").includes("401")
+            ) {
+
+                setMessage(
+                    originalPhotoMessage,
+                    "Your session has expired. Please log in again.",
+                    true
+                );
+
+                setMessage(
+                    completionPhotoMessage,
+                    "Your session has expired. Please log in again.",
+                    true
+                );
+            }
+        }
+    }
+
+
+    // Original aur completion photo load karna
+    async function loadPhoto(
+        endpoint,
+        imageId,
+        messageElement,
+        photoLabel
+    ) {
+
+        const image =
+            document.getElementById(imageId);
+
+
+        image.hidden = true;
+        image.removeAttribute("src");
+
+
+        setMessage(
+            messageElement,
+            "Loading " + photoLabel.toLowerCase() + "..."
+        );
+
+
+        try {
+
+            const response = await fetch(
+                API_BASE + endpoint,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Accept": "image/*"
+                    }
+                }
+            );
+
+
+            // Response error handle karna
+            if (!response.ok) {
+
+                let message;
+
+
+                if (response.status === 401) {
+
+                    message =
+                        "Your session has expired. Please log in again.";
+
+                } else if (response.status === 403) {
+
+                    message =
+                        "You are not authorized to view this photo.";
+
+                } else if (response.status === 404) {
+
+                    if (
+                        photoLabel === "Worker completion photo"
+                    ) {
+
+                        message =
+                            "Completion photo is not available yet. The worker may not have uploaded it, or the backend photo endpoint/storage is not configured.";
+
+                    } else {
+
+                        message =
+                            "Original complaint photo is not available. It may not have been uploaded when the complaint was created.";
+                    }
+
+                } else {
+
+                    message =
+                        "Could not load " +
+                        photoLabel.toLowerCase() +
+                        ". HTTP " +
+                        response.status;
+                }
+
+
+                setMessage(
+                    messageElement,
+                    message,
+                    response.status !== 404
+                );
+
+
+                console.error(
+                    photoLabel + " request failed:",
+                    response.status,
+                    await response.text()
+                );
+
+                return;
+            }
+
+
+            // Image response ko Blob banana
+            const blob = await response.blob();
+
+
+            // Check ki response image hai ya nahi
+            if (!blob.type.startsWith("image/")) {
+
+                setMessage(
+                    messageElement,
+                    "Backend response is not an image. Content-Type: " +
+                    (blob.type || "missing"),
+                    true
+                );
+
+                console.error(
+                    photoLabel + " unexpected content type:",
+                    blob.type
+                );
+
+                return;
+            }
+
+
+            // Image URL banana
+            const imageUrl = URL.createObjectURL(blob);
+
+
+            image.onload = function () {
+
+                URL.revokeObjectURL(imageUrl);
+            };
+
+
+            image.onerror = function () {
+
+                URL.revokeObjectURL(imageUrl);
+
+                image.hidden = true;
+
+                setMessage(
+                    messageElement,
+                    photoLabel +
+                    " was returned by the server but could not be displayed.",
+                    true
+                );
+            };
+
+
+            // Image screen par show karna
+            image.src = imageUrl;
+
+            image.hidden = false;
+
+
+            setMessage(messageElement, "");
+
+
+        } catch (error) {
+
+            console.error(
+                photoLabel + " error:",
+                error
+            );
+
+            setMessage(
+                messageElement,
+                "Could not connect to the backend to load this photo. Check backend URL and CORS.",
+                true
+            );
+        }
+    }
+
+
+    // Page open hote hi details load karna
+    loadDetails();
+
+</script>
+
+</body>
+
+</html>

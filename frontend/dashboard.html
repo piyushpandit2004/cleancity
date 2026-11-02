@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CleanCity | Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f4f7f6;
+            color: #263238;
+        }
+
+        /* Header */
+
+        header {
+            background: #198754;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        header h1 span {
+            margin-right: 5px;
+        }
+
+        .logout-btn {
+            background: #126b41;
+            color: white;
+            border: none;
+            padding: 11px 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .logout-btn:hover {
+            background: #0d5835;
+        }
+
+        /* Main container */
+
+        .container {
+            max-width: 1150px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        /* Welcome section */
+
+        .welcome-section {
+            background: white;
+            padding: 28px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .welcome-section h2 {
+            font-size: 27px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-section p {
+            color: #65716c;
+            line-height: 1.7;
+        }
+
+        #welcomeEmail {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        /* Dashboard cards */
+
+        .section-heading {
+            font-size: 23px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            border-top: 4px solid #198754;
+        }
+
+        .card-icon {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 21px;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-card p {
+            color: #65716c;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .primary-btn {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .primary-btn:hover {
+            background: #146c43;
+        }
+
+        .blue-btn {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .blue-btn:hover {
+            background: #0b5ed7;
+        }
+
+        /* Sections */
+
+        .content-section {
+            background: white;
+            padding: 28px;
+            margin-top: 30px;
+            border-radius: 10px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            display: none;
+        }
+
+        .content-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #198754;
+        }
+
+        .notice {
+            background: #e8f5e9;
+            color: #256b3b;
+            padding: 18px;
+            margin-top: 30px;
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+
+        .message {
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            display: none;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .success {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .info {
+            background: #cff4fc;
+            color: #055160;
+        }
+
+        /* Complaint cards */
+
+        .complaint-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .complaint-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .complaint-item h3 {
+            margin-bottom: 15px;
+        }
+
+        .complaint-item p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #fff3cd;
+            color: #856404;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .details-btn {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .details-btn:hover {
+            background: #0b5ed7;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .empty-message {
+            color: #65716c;
+            padding: 15px 0;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+
+        footer {
+            margin-top: 45px;
+            padding: 22px;
+            text-align: center;
+            background: #e9f2ed;
+            color: #52635a;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 18px 5%;
+            }
+
+            header h1 {
+                font-size: 23px;
+            }
+
+            .dashboard-grid,
+            .complaint-list {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-section h2 {
+                font-size: 23px;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+    <h1><span>🌿</span> CleanCity</h1>
+
+    <button class="logout-btn" onclick="logout()">
+        Logout
+    </button>
+</header>
+
+
+<main class="container">
+
+    <!-- WELCOME SECTION -->
+
+    <section class="welcome-section">
+
+        <h2>Welcome to CleanCity!</h2>
+
+        <p>
+            Help us keep our city clean and green.
+            Register complaints about waste and garbage in your area
+            and track their progress from your dashboard.
+        </p>
+
+        <p style="margin-top: 12px;">
+            Logged in as:
+            <span id="welcomeEmail">Citizen</span>
+        </p>
+
+    </section>
+
+
+    <!-- DASHBOARD CARDS -->
+
+    <h2 class="section-heading">Your Dashboard</h2>
+
+    <div class="dashboard-grid">
+
+        <!-- REGISTER COMPLAINT -->
+
+        <div class="dashboard-card">
+
+            <div class="card-icon">📝</div>
+
+            <h3>Register Complaint</h3>
+
+            <p>
+                Report garbage, waste or cleanliness problems
+                in your locality.
+            </p>
+
+            <button class="primary-btn"
+                    onclick="showSection('registerSection')">
+                Register Complaint
+            </button>
+
+        </div>
+
+
+        <!-- MY COMPLAINTS -->
+
+        <div class="dashboard-card">
+
+            <div class="card-icon">📋</div>
+
+            <h3>My Complaints</h3>
+
+            <p>
+                View the complaints you have submitted to CleanCity.
+            </p>
+
+            <button class="primary-btn"
+                    onclick="showSection('myComplaintsSection'); loadComplaints();">
+                My Complaints
+            </button>
+
+        </div>
+
+
+        <!-- COMPLAINT STATUS -->
+
+        <div class="dashboard-card">
+
+            <div class="card-icon">📊</div>
+
+            <h3>Complaint Status</h3>
+
+            <p>
+                Check your complaint status and view detailed
+                information, including available photos.
+            </p>
+
+            <button class="blue-btn"
+                    onclick="window.location.href='status.html'">
+                Check Status
+            </button>
+
+        </div>
+
+
+        <!-- MY PROFILE -->
+
+        <div class="dashboard-card">
+
+            <div class="card-icon">👤</div>
+
+            <h3>My Profile</h3>
+
+            <p>
+                View your currently logged-in account information.
+            </p>
+
+            <button class="primary-btn"
+                    onclick="showSection('profileSection'); loadProfile();">
+                My Profile
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- REGISTER COMPLAINT FORM -->
+
+    <section class="content-section" id="registerSection">
+
+        <h2>Register a Complaint</h2>
+
+        <div id="registerMessage" class="message"></div>
+
+        <form id="complaintForm">
+
+            <div class="form-group">
+
+                <label for="title">Complaint Title *</label>
+
+                <input
+                        type="text"
+                        id="title"
+                        name="title"
+                        placeholder="Example: Garbage near my house"
+                        required
+                        maxlength="150">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">Description *</label>
+
+                <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Describe the cleanliness problem..."
+                        required></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="location">Location *</label>
+
+                <input
+                        type="text"
+                        id="location"
+                        name="location"
+                        placeholder="Enter your area or location"
+                        required
+                        maxlength="255">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="photo">Upload Photo (Optional)</label>
+
+                <input
+                        type="file"
+                        id="photo"
+                        name="photo"
+                        accept="image/*">
+
+                <small>
+                    Upload an image of the garbage or cleanliness problem.
+                </small>
+
+            </div>
+
+
+            <button type="submit"
+                    class="primary-btn"
+                    id="submitComplaintBtn">
+                Submit Complaint
+            </button>
+
+            <button type="button"
+                    class="back-btn"
+                    onclick="hideSections()">
+                Cancel
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- MY COMPLAINTS SECTION -->
+
+    <section class="content-section" id="myComplaintsSection">
+
+        <h2>My Complaints</h2>
+
+        <div id="complaintsMessage" class="message"></div>
+
+        <div id="complaintsLoading" class="empty-message"
+             style="display:none;">
+            Loading complaints...
+        </div>
+
+        <div id="complaintList" class="complaint-list"></div>
+
+        <button class="back-btn" onclick="hideSections()">
+            Back to Dashboard
+        </button>
+
+    </section>
+
+
+    <!-- PROFILE SECTION -->
+
+    <section class="content-section" id="profileSection">
+
+        <h2>My Profile</h2>
+
+        <div class="complaint-item">
+
+            <p>
+                <strong>Email:</strong>
+                <span id="profileEmail">Not available</span>
+            </p>
+
+            <p>
+                <strong>Role:</strong>
+                <span id="profileRole">Not available</span>
+            </p>
+
+        </div>
+
+        <button class="back-btn" onclick="hideSections()">
+            Back to Dashboard
+        </button>
+
+    </section>
+
+
+    <!-- NOTICE -->
+
+    <div class="notice">
+
+        <strong>🌱 Together for a Cleaner City!</strong>
+
+        <p>
+            Your participation makes a difference.
+            Report cleanliness problems and help build a cleaner,
+            healthier environment for everyone.
+        </p>
+
+    </div>
+
+</main>
+
+
+<!-- FOOTER -->
+
+<footer>
+    <p>© 2026 CleanCity | Smart Waste Management System</p>
+    <p>Building a cleaner and greener future together.</p>
+</footer>
+
+
+<script>
+
+    const API_URL = "http://localhost:8080/api/citizen/complaints";
+
+
+    // GET TOKEN
+
+    function getToken() {
+
+        return localStorage.getItem("token")
+            || localStorage.getItem("jwtToken")
+            || localStorage.getItem("accessToken");
+
+    }
+
+
+    // GET LOGIN EMAIL AND ROLE
+
+    function loadProfile() {
+
+        const email = localStorage.getItem("email");
+        const role = localStorage.getItem("role");
+
+        document.getElementById("welcomeEmail").textContent =
+            email || "Citizen";
+
+        document.getElementById("profileEmail").textContent =
+            email || "Not available";
+
+        document.getElementById("profileRole").textContent =
+            role || "Not available";
+
+    }
+
+
+    // CHECK LOGIN
+
+    function checkLogin() {
+
+        const token = getToken();
+
+        if (!token) {
+
+            alert("Please login first.");
+
+            window.location.href = "login.html";
+
+            return false;
+
+        }
+
+        return true;
+
+    }
+
+
+    // SHOW SECTION
+
+    function showSection(sectionId) {
+
+        const sections = document.querySelectorAll(".content-section");
+
+        sections.forEach(function (section) {
+
+            section.style.display = "none";
+
+        });
+
+        document.getElementById(sectionId).style.display = "block";
+
+        document.getElementById(sectionId).scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    // HIDE ALL SECTIONS
+
+    function hideSections() {
+
+        const sections = document.querySelectorAll(".content-section");
+
+        sections.forEach(function (section) {
+
+            section.style.display = "none";
+
+        });
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+    }
+
+
+    // LOGOUT
+
+    function logout() {
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("jwtToken");
+        localStorage.removeItem("accessToken");
+
+        localStorage.removeItem("email");
+        localStorage.removeItem("role");
+
+        window.location.href = "login.html";
+
+    }
+
+
+    // SHOW MESSAGE
+
+    function showMessage(elementId, text, type) {
+
+        const element = document.getElementById(elementId);
+
+        element.textContent = text;
+
+        element.className = "message " + type;
+
+        element.style.display = "block";
+
+    }
+
+
+    // CLEAR MESSAGE
+
+    function clearMessage(elementId) {
+
+        const element = document.getElementById(elementId);
+
+        element.textContent = "";
+
+        element.style.display = "none";
+
+    }
+
+
+    // SUBMIT COMPLAINT
+
+    document.getElementById("complaintForm")
+        .addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            if (!checkLogin()) {
+                return;
+            }
+
+            const title = document.getElementById("title").value.trim();
+
+            const description =
+                document.getElementById("description").value.trim();
+
+            const location =
+                document.getElementById("location").value.trim();
+
+            const photoInput = document.getElementById("photo");
+
+            const submitButton =
+                document.getElementById("submitComplaintBtn");
+
+
+            if (!title || !description || !location) {
+
+                showMessage(
+                    "registerMessage",
+                    "Please fill all required fields.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (photoInput.files.length > 0) {
+
+                const photo = photoInput.files[0];
+
+                if (!photo.type.startsWith("image/")) {
+
+                    showMessage(
+                        "registerMessage",
+                        "Please select a valid image.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+            }
+
+
+            submitButton.disabled = true;
+
+            submitButton.textContent = "Submitting...";
+
+            clearMessage("registerMessage");
+
+
+            try {
+
+                let confirmDuplicate = false;
+
+                let result;
+
+
+                while (true) {
+
+                    const formData = new FormData();
+
+                    formData.append("title", title);
+
+                    formData.append("description", description);
+
+                    formData.append("location", location);
+
+
+                    if (photoInput.files.length > 0) {
+
+                        formData.append("photo", photoInput.files[0]);
+
+                    }
+
+
+                    const response = await fetch(
+                        API_URL + "?confirmDuplicate=" + confirmDuplicate,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Authorization": "Bearer " + getToken()
+                            },
+
+                            body: formData
+                        }
+                    );
+
+
+                    const responseText = await response.text();
+
+                    try {
+
+                        result = responseText
+                            ? JSON.parse(responseText)
+                            : {};
+
+                    } catch {
+
+                        result = {
+                            message: responseText
+                        };
+
+                    }
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result.message
+                            || result.error
+                            || "Complaint submission failed. HTTP "
+                            + response.status
+                        );
+
+                    }
+
+
+                    if (result.duplicateFound && !result.submitted) {
+
+                        const confirmSubmission = confirm(
+                            "A similar complaint may already exist.\n\n"
+                            + "Do you still want to submit your complaint?"
+                        );
+
+
+                        if (!confirmSubmission) {
+
+                            showMessage(
+                                "registerMessage",
+                                "Complaint submission cancelled.",
+                                "info"
+                            );
+
+                            return;
+
+                        }
+
+
+                        confirmDuplicate = true;
+
+                        continue;
+
+                    }
+
+
+                    break;
+
+                }
+
+
+                if (result.submitted === false) {
+
+                    throw new Error(
+                        result.message
+                        || "Complaint submit nahi hui."
+                    );
+
+                }
+
+
+                showMessage(
+                    "registerMessage",
+                    "Complaint submitted successfully!",
+                    "success"
+                );
+
+
+                document.getElementById("complaintForm").reset();
+
+
+                // Refresh the complaint list.
+
+                loadComplaints();
+
+
+            } catch (error) {
+
+                showMessage(
+                    "registerMessage",
+                    error.message,
+                    "error"
+                );
+
+            } finally {
+
+                submitButton.disabled = false;
+
+                submitButton.textContent = "Submit Complaint";
+
+            }
+
+        });
+
+
+    // LOAD MY COMPLAINTS
+
+    async function loadComplaints() {
+
+        const list = document.getElementById("complaintList");
+
+        const loading = document.getElementById("complaintsLoading");
+
+
+        if (!checkLogin()) {
+            return;
+        }
+
+
+        loading.style.display = "block";
+
+        list.innerHTML = "";
+
+        clearMessage("complaintsMessage");
+
+
+        try {
+
+            const response = await fetch(API_URL, {
+
+                method: "GET",
+
+                headers: {
+                    "Authorization": "Bearer " + getToken(),
+                    "Accept": "application/json"
+                }
+
+            });
+
+
+            const responseText = await response.text();
+
+            let data;
+
+            try {
+
+                data = responseText
+                    ? JSON.parse(responseText)
+                    : [];
+
+            } catch {
+
+                throw new Error("Invalid response received from server.");
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message
+                    || data.error
+                    || "Could not load complaints. HTTP "
+                    + response.status
+                );
+
+            }
+
+
+            const complaints = Array.isArray(data)
+                ? data
+                : Array.isArray(data.content)
+                    ? data.content
+                    : [];
+
+
+            loading.style.display = "none";
+
+
+            if (complaints.length === 0) {
+
+                list.innerHTML = `
+                    <p class="empty-message">
+                        You have not registered any complaints yet.
+                    </p>
+                `;
+
+                return;
+
+            }
+
+
+            complaints.forEach(function (complaint) {
+
+                const id = complaint.id ?? complaint.complaintId;
+
+                const title = complaint.title || "Untitled Complaint";
+
+                const status = complaint.status || "UNKNOWN";
+
+                const location = complaint.location || "Not available";
+
+
+                const card = document.createElement("div");
+
+                card.className = "complaint-item";
+
+
+                const heading = document.createElement("h3");
+
+                heading.textContent = title;
+
+
+                const idParagraph = document.createElement("p");
+
+                idParagraph.textContent =
+                    "Complaint ID: " + (id ?? "Not available");
+
+
+                const locationParagraph = document.createElement("p");
+
+                locationParagraph.textContent = "Location: " + location;
+
+
+                const statusParagraph = document.createElement("p");
+
+                const statusLabel = document.createElement("strong");
+
+                statusLabel.textContent = "Status: ";
+
+                const statusBadge = document.createElement("span");
+
+                statusBadge.className = "status-badge";
+
+                statusBadge.textContent = status;
+
+
+                statusParagraph.appendChild(statusLabel);
+
+                statusParagraph.appendChild(statusBadge);
+
+
+                const detailsButton = document.createElement("button");
+
+                detailsButton.type = "button";
+
+                detailsButton.className = "details-btn";
+
+                detailsButton.textContent = "View Details";
+
+
+                detailsButton.addEventListener("click", function () {
+
+                    if (id === undefined || id === null) {
+
+                        alert("Complaint ID is missing.");
+
+                        return;
+
+                    }
+
+
+                    window.location.href =
+                        "complaint-details.html?id="
+                        + encodeURIComponent(String(id));
+
+                });
+
+
+                card.appendChild(heading);
+
+                card.appendChild(idParagraph);
+
+                card.appendChild(locationParagraph);
+
+                card.appendChild(statusParagraph);
+
+                card.appendChild(detailsButton);
+
+
+                list.appendChild(card);
+
+            });
+
+
+        } catch (error) {
+
+            loading.style.display = "none";
+
+            showMessage(
+                "complaintsMessage",
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // INITIALIZE DASHBOARD
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadProfile();
+
+    });
+
+</script>
+
+</body>
+
+</html>

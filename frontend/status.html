@@ -1,0 +1,395 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanCity - Complaint Status</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #166534;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .dashboard-btn {
+            background: white;
+            color: #166534;
+        }
+
+        .refresh-btn {
+            background: #166534;
+            color: white;
+            margin-top: 12px;
+        }
+
+        .refresh-btn:hover {
+            background: #14532d;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .complaint-card {
+            background: white;
+            padding: 22px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .complaint-card h3 {
+            margin-top: 0;
+            color: #166534;
+        }
+
+        .complaint-card p {
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .PENDING {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .ASSIGNED {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .IN_PROGRESS {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .RESOLVED {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .REJECTED {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .message {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        .details-btn {
+            background: #2563eb;
+            color: white;
+            margin-top: 12px;
+            margin-left: 8px;
+        }
+
+        .details-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin-top: 22px;
+            }
+
+            .complaint-card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h2>🌱 CleanCity</h2>
+
+    <div class="header-buttons">
+        <button class="dashboard-btn"
+                onclick="window.location.href='dashboard.html'">
+            Dashboard
+        </button>
+
+        <button class="dashboard-btn" onclick="logout()">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="container">
+
+    <h1 class="page-title">My Complaint Status</h1>
+
+    <p class="subtitle">
+        Track your complaints and check their latest status.
+    </p>
+
+    <button class="refresh-btn" onclick="loadComplaints()">
+        Refresh Status
+    </button>
+
+    <div id="message" class="message" style="margin-top: 20px;">
+        Loading your complaints...
+    </div>
+
+    <div id="complaints"></div>
+
+</main>
+
+<script>
+    const API_BASE = "http://localhost:8080";
+
+    const message = document.getElementById("message");
+    const complaintsContainer = document.getElementById("complaints");
+
+    function getToken() {
+        return localStorage.getItem("token");
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("email");
+        localStorage.removeItem("role");
+
+        window.location.href = "login.html";
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function displayValue(value) {
+        if (value === null || value === undefined || value === "") {
+            return "Not available";
+        }
+
+        return escapeHTML(value);
+    }
+
+    async function loadComplaints() {
+
+        const token = getToken();
+
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        message.style.display = "block";
+        message.className = "message";
+        message.textContent = "Loading your complaints...";
+        complaintsContainer.innerHTML = "";
+
+        try {
+            const response = await fetch(
+                API_BASE + "/api/citizen/complaints",
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Accept": "application/json"
+                    }
+                }
+            );
+
+            if (response.status === 401 || response.status === 403) {
+                message.className = "message error";
+                message.textContent =
+                    "Your session may have expired, or you do not have permission. Please log in again.";
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("HTTP error: " + response.status);
+            }
+
+            const data = await response.json();
+
+            if (!Array.isArray(data)) {
+                throw new Error(
+                    "Backend response is not a complaint list."
+                );
+            }
+
+            message.style.display = "none";
+
+            if (data.length === 0) {
+                complaintsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No complaints found</h3>
+                        <p>You have not registered any complaints yet.</p>
+
+                        <button class="refresh-btn"
+                            onclick="window.location.href='dashboard.html'">
+                            Register a Complaint
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            complaintsContainer.innerHTML = data.map(complaint => {
+
+                const status = String(complaint.status || "PENDING")
+                    .toUpperCase();
+
+                const safeStatusClass = [
+                    "PENDING",
+                    "ASSIGNED",
+                    "IN_PROGRESS",
+                    "RESOLVED",
+                    "REJECTED"
+                ].includes(status) ? status : "";
+
+                return `
+                    <article class="complaint-card">
+
+                        <h3>
+                            Complaint #${displayValue(complaint.id)}
+                        </h3>
+
+                        <p>
+                            <strong>Title:</strong>
+                            ${displayValue(complaint.title)}
+                        </p>
+
+                        <p>
+                            <strong>Description:</strong>
+                            ${displayValue(complaint.description)}
+                        </p>
+
+                        <p>
+                            <strong>Location:</strong>
+                            ${displayValue(complaint.location)}
+                        </p>
+
+                        <p>
+                            <strong>Created At:</strong>
+                            ${displayValue(complaint.createdAt)}
+                        </p>
+
+                        <p>
+                            <strong>Status:</strong>
+                            <span class="status ${safeStatusClass}">
+                                ${displayValue(status)}
+                            </span>
+                        </p>
+
+                        ${complaint.rejectionReason ? `
+                            <p>
+                                <strong>Rejection Reason:</strong>
+                                ${displayValue(complaint.rejectionReason)}
+                            </p>
+                        ` : ""}
+
+                        <button
+                            class="details-btn"
+                            onclick="viewDetails('${encodeURIComponent(String(complaint.id))}')">
+                            View Details
+                        </button>
+
+                    </article>
+                `;
+            }).join("");
+
+        } catch (error) {
+            console.error("Error loading complaints:", error);
+
+            message.style.display = "block";
+            message.className = "message error";
+            message.textContent =
+                "Unable to load complaints. Check whether the backend is running and the API response is correct.";
+        }
+    }
+
+    // Complaint ID ko details page ke URL mein bhejna
+    function viewDetails(complaintId) {
+
+        if (!complaintId || complaintId === "undefined") {
+            alert("Complaint ID nahi mili. Please refresh the complaint list.");
+            return;
+        }
+
+        window.location.href =
+            "complaint-details.html?id=" + complaintId;
+    }
+
+    loadComplaints();
+</script>
+
+</body>
+</html>

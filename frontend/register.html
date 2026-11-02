@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CleanCity | Register</title>
+    <link rel="stylesheet" href="css/register.css">
+</head>
+<body>
+
+<header class="register-header">
+    <a href="index.html" class="brand">🌿 Clean<span>City</span></a>
+    <p>Smart Waste Management System</p>
+</header>
+
+<main class="register-container">
+    <section class="register-card">
+
+        <div class="register-icon">🌱</div>
+
+        <h2>Create Account</h2>
+        <p class="subtitle">Join us to build a cleaner city</p>
+
+        <form id="registerForm">
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name"
+                       placeholder="Enter your full name"
+                       autocomplete="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email"
+                       placeholder="Enter your email"
+                       autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password"
+                           placeholder="Create a password"
+                           autocomplete="new-password" required>
+
+                    <button type="button" class="toggle-password"
+                            data-target="password" aria-label="Show password">
+                        <svg class="eye-icon" viewBox="0 0 24 24"
+                             width="22" height="22" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword"
+                           name="confirmPassword"
+                           placeholder="Enter password again"
+                           autocomplete="new-password" required>
+
+                    <button type="button" class="toggle-password"
+                            data-target="confirmPassword"
+                            aria-label="Show confirm password">
+                        <svg class="eye-icon" viewBox="0 0 24 24"
+                             width="22" height="22" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="registerButton">Create Account →</button>
+
+            <p id="message" role="status" aria-live="polite"></p>
+        </form>
+
+        <p class="login-link">
+            Already have an account?
+            <a href="login.html">Login</a>
+        </p>
+
+        <a href="index.html" class="back-home">← Back to Home</a>
+
+    </section>
+</main>
+
+<footer class="register-footer">
+    © 2026 CleanCity. Building a Cleaner Tomorrow 🌱
+</footer>
+
+<script src="register.js"></script>
+</body>
+</html>
